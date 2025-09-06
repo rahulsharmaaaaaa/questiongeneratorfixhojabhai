@@ -179,7 +179,7 @@ This is essential for proper JSON parsing.`;
         cleanedResponse = markdownJsonMatch[1];
       } else {
         // Fall back to finding the first complete JSON object
-        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        const jsonMatch = response.match(/\{[\s\S]*?\}/);
         if (!jsonMatch) {
           throw new Error('No valid JSON found in response');
         }
