@@ -189,9 +189,6 @@ This is essential for proper JSON parsing.`;
       // Clean up any remaining markdown or extra characters
       cleanedResponse = cleanedResponse.trim();
       
-      // More aggressive JSON sanitization - replace all single backslashes with double backslashes
-      cleanedResponse = cleanedResponse.replace(/\\/g, '\\\\');
-      
       const parsedResponse = JSON.parse(cleanedResponse);
       
       return {
