@@ -170,10 +170,9 @@ This is essential for proper JSON parsing.`;
 
     const response = await this.callGeminiAPI(prompt);
     
+    let cleanedResponse = '';
+    
     try {
-      // Enhanced JSON extraction logic
-      let cleanedResponse = '';
-      
       // First, try to extract JSON from markdown code block
       const markdownJsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
       if (markdownJsonMatch) {
@@ -190,9 +189,8 @@ This is essential for proper JSON parsing.`;
       // Clean up any remaining markdown or extra characters
       cleanedResponse = cleanedResponse.trim();
       
-      // Sanitize JSON by fixing improperly escaped backslashes
-      // This regex finds single backslashes that are not part of valid JSON escape sequences
-      cleanedResponse = cleanedResponse.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
+      // More aggressive JSON sanitization - replace all single backslashes with double backslashes
+      cleanedResponse = cleanedResponse.replace(/\\/g, '\\\\');
       
       const parsedResponse = JSON.parse(cleanedResponse);
       
