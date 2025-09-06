@@ -227,7 +227,7 @@ function App() {
         setCurrentQuestion(questionCount);
 
         // Delay to prevent rate limiting
-        await geminiService.delay(1000);
+        await geminiService.delay(8000); // Increased delay to 8 seconds
 
       } catch (error) {
         console.error(`Error generating question for topic ${topic.name}:`, error);
@@ -282,7 +282,7 @@ function App() {
           setCurrentQuestion(solutionCount);
 
           // Delay to prevent rate limiting
-          await geminiService.delay(1000);
+          await geminiService.delay(8000); // Increased delay to 8 seconds
         }
 
       } catch (error) {

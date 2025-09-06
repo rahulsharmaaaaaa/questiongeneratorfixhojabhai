@@ -134,6 +134,7 @@ Generate a NEW ${questionType} question for this topic that:
 2. Is completely original and not a copy of existing questions
 3. Tests the core concepts from the topic notes
 4. Uses proper KaTeX formatting for all mathematical expressions, formulas, tables, and diagrams
+   IMPORTANT: In JSON strings, ALL backslashes must be double-escaped (e.g., use "\\\\frac{1}{2}" not "\\frac{1}{2}")
 5. Has the appropriate difficulty level for ${examName}
 
 Question Type: ${questionType}
@@ -154,14 +155,18 @@ ${part ? `Part: ${part}` : ''}
 
 Return ONLY a valid JSON object with this exact structure:
 {
-  "question_statement": "Question text with KaTeX formatting",
+  "question_statement": "Question text with KaTeX formatting (remember to double-escape backslashes)",
   "options": ${questionType === 'MCQ' || questionType === 'MSQ' ? '["Option A", "Option B", "Option C", "Option D"]' : 'null'},
   "answer": "${questionType === 'NAT' ? 'numerical_value' : questionType === 'Subjective' ? 'descriptive_answer' : 'correct_option_letters_like_A_or_AB'}",
-  "solution": "Detailed step-by-step solution with KaTeX formatting explaining the concept and method",
+  "solution": "Detailed step-by-step solution with KaTeX formatting (remember to double-escape backslashes)",
   "difficulty_level": "Easy|Medium|Hard"
 }
 
-Ensure all mathematical expressions use KaTeX syntax (e.g., \\frac{1}{2}, \\sqrt{x}, \\int, etc.).`;
+CRITICAL: In the JSON response, all backslashes in KaTeX expressions must be double-escaped for valid JSON:
+- Use "\\\\frac{1}{2}" instead of "\\frac{1}{2}"
+- Use "\\\\sqrt{x}" instead of "\\sqrt{x}"
+- Use "\\\\int" instead of "\\int"
+This is essential for proper JSON parsing.`;
 
     const response = await this.callGeminiAPI(prompt);
     
@@ -184,6 +189,10 @@ Ensure all mathematical expressions use KaTeX syntax (e.g., \\frac{1}{2}, \\sqrt
       
       // Clean up any remaining markdown or extra characters
       cleanedResponse = cleanedResponse.trim();
+      
+      // Sanitize JSON by fixing improperly escaped backslashes
+      // This regex finds single backslashes that are not part of valid JSON escape sequences
+      cleanedResponse = cleanedResponse.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
       
       const parsedResponse = JSON.parse(cleanedResponse);
       
@@ -209,6 +218,7 @@ Ensure all mathematical expressions use KaTeX syntax (e.g., \\frac{1}{2}, \\sqrt
     } catch (error) {
       console.error('Error parsing Gemini response:', error);
       console.log('Raw response:', response);
+      console.log('Cleaned response:', cleanedResponse);
       throw new Error('Failed to parse Gemini response as JSON');
     }
   }
