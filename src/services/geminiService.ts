@@ -166,13 +166,25 @@ Ensure all mathematical expressions use KaTeX syntax (e.g., \\frac{1}{2}, \\sqrt
     const response = await this.callGeminiAPI(prompt);
     
     try {
-      // Clean the response to extract JSON
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No valid JSON found in response');
+      // Enhanced JSON extraction logic
+      let cleanedResponse = '';
+      
+      // First, try to extract JSON from markdown code block
+      const markdownJsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+      if (markdownJsonMatch) {
+        cleanedResponse = markdownJsonMatch[1];
+      } else {
+        // Fall back to finding the first complete JSON object
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error('No valid JSON found in response');
+        }
+        cleanedResponse = jsonMatch[0];
       }
       
-      const cleanedResponse = jsonMatch[0];
+      // Clean up any remaining markdown or extra characters
+      cleanedResponse = cleanedResponse.trim();
+      
       const parsedResponse = JSON.parse(cleanedResponse);
       
       return {
